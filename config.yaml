@@ -35,9 +35,13 @@ x_accounts:
     category: "sports"
     rss_url: "https://www.hoopsrumors.com/feed"
 
-  - username: "Yardbarker_NBA"
+  - username: "HoopsHype"
     category: "sports"
-    rss_url: "https://www.yardbarker.com/rss/sport_nba"
+    rss_url: "https://hoopshype.com/feed/"
+
+  - username: "SLAM_Online"
+    category: "sports"
+    rss_url: "https://www.slamonline.com/feed/"
 
   - username: "ShamsCharania"
     category: "sports"
