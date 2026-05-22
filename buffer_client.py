@@ -33,6 +33,12 @@ def post_to_buffer(
         ... on MutationError {
           message
         }
+        ... on UnexpectedError {
+          message
+        }
+        ... on UserError {
+          message
+        }
       }
     }
     """
@@ -86,6 +92,7 @@ def post_to_buffer(
 
     create_post_data = body.get("data", {}).get("createPost")
     if not create_post_data:
+        logger.error(f"Empty createPost data. Full body: {body}")
         return {
             "success": False,
             "post_id": None,
@@ -94,15 +101,7 @@ def post_to_buffer(
         }
 
     typename = create_post_data.get("__typename")
-    if typename == "MutationError":
-        error_msg = create_post_data.get("message", "Unknown mutation error")
-        return {
-            "success": False,
-            "post_id": None,
-            "due_at": None,
-            "error": error_msg,
-        }
-
+    
     if typename == "PostActionSuccess":
         post_info = create_post_data.get("post", {})
         return {
@@ -112,9 +111,18 @@ def post_to_buffer(
             "error": None,
         }
 
+    # Extract error message for any other type (MutationError, UnexpectedError, UserError, etc.)
+    error_msg = create_post_data.get("message")
+    if not error_msg:
+        error_msg = f"Unexpected response type: {typename} (Payload: {create_post_data})"
+    else:
+        error_msg = f"{typename}: {error_msg}"
+
+    logger.error(f"Buffer post creation failed: {error_msg}")
+    
     return {
         "success": False,
         "post_id": None,
         "due_at": None,
-        "error": f"Unexpected response type: {typename}",
+        "error": error_msg,
     }
