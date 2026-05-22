@@ -37,11 +37,11 @@ x_accounts:
 
   - username: "HoopsHype"
     category: "sports"
-    rss_url: "https://hoopshype.com/feed/"
+    rss_url: "https://news.google.com/rss/search?q=%22HoopsHype%22&hl=en-US&gl=US&ceid=US:en"
 
   - username: "SLAM_Online"
     category: "sports"
-    rss_url: "https://www.slamonline.com/feed/"
+    rss_url: "https://news.google.com/rss/search?q=%22SLAM+Magazine%22+OR+%22SLAM+online%22&hl=en-US&gl=US&ceid=US:en"
 
   - username: "ShamsCharania"
     category: "sports"
