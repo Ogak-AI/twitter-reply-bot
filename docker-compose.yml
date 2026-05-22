@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: bball-news-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data       # SQLite DB persists between restarts
+      - ./logs:/app/logs       # Logs persist between restarts
+      - ./config.yaml:/app/config.yaml
+    networks:
+      - botnet
+
+  # Groq-only service configuration: no local AI model container is required.
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 86400 --cleanup  # Check for updates daily
+    networks:
+      - botnet
+
+networks:
+  botnet:
+    driver: bridge

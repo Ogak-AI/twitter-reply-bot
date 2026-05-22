@@ -1,0 +1,39 @@
+# Basketball News Bot — Buffer API Edition
+# Secrets are loaded from environment variables (.env file or system env)
+# Never hardcode API keys here — use .env instead
+
+# ── Buffer API ───────────────────────────────
+buffer:
+  api_key: "${BUFFER_API_KEY}"
+  api_url: "https://api.buffer.com"
+  channel_id: "${BUFFER_CHANNEL_ID}"
+  mode: "${BUFFER_MODE:-addToQueue}"             # addToQueue | customScheduled | draft | shareNow
+
+# ── X Accounts to track ──────────────────────
+# Note: To monitor X accounts without the expensive official X API, convert the X profiles
+# to RSS feeds using services like RSS.app, Inoreader, OpenRSS, or self-hosted RSSHub.
+# Copy-paste the RSS URLs of the target accounts below.
+x_accounts:
+  - username: "ESPN"
+    rss_url: "https://www.espn.com/espn/rss/nba/news"
+  - username: "FabrizioRomano"
+    rss_url: "https://rss.app/feeds/your_fabrizioromano_feed_url.xml"
+  - username: "BleacherReport"
+    rss_url: "https://rss.app/feeds/your_bleacherreport_feed_url.xml"
+
+# ── AI (tweet generation) ────────────────────
+ai:
+  provider: "${AI_PROVIDER:-groq}"    # groq only
+  model: "${AI_MODEL:-llama-3.3-70b-versatile}"
+  groq_api_key: "${GROQ_API_KEY:-}"
+  max_tweet_length: 270
+
+# ── Listener ─────────────────────────────────
+listener:
+  poll_interval_seconds: 30
+  max_article_age_hours: 2
+
+# ── Logging ──────────────────────────────────
+logging:
+  level: "${LOG_LEVEL:-INFO}"
+  log_file: "logs/bot.log"
