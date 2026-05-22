@@ -107,7 +107,8 @@ def process_article(article: dict, config: dict):
     mode       = config["buffer"].get("mode", "addToQueue")
 
     logger.info("")
-    logger.info(f"[NEW] [{article['source']}] {article['title'][:75]}")
+    category = article.get('category', 'general')
+    logger.info(f"[NEW] [{article['source']}] [{category}] {article['title'][:75]}")
 
     try:
         reply_text = generate_tweet(article, config["ai"])
@@ -158,6 +159,11 @@ def run():
     logger.info("=" * 58)
     logger.info("X/Twitter Reply Bot — Buffer API Edition")
     logger.info(f"Accounts : {len(feeds)} sources")
+    # Show category breakdown
+    from collections import Counter
+    cats = Counter(f.get('category', 'general') for f in feeds)
+    for cat, count in sorted(cats.items()):
+        logger.info(f"           {cat}: {count}")
     logger.info(f"Poll     : every {poll_secs}s ({poll_secs // 60}min)")
     logger.info(f"AI       : {config['ai']['provider']} / {config['ai']['model']}")
     channel_id = resolve_channel_id(config['buffer']['channel_id'])

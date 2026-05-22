@@ -29,15 +29,31 @@ def strip_emojis(text: str) -> str:
     return text
 
 
+# Category-specific tone hints to make replies feel more natural
+_CATEGORY_HINTS = {
+    "sports": "You are a passionate sports fan who watches games live. Use sports slang naturally (e.g., 'dude is cooking', 'W trade', 'league is cooked').",
+    "tech": "You are a tech-savvy person who follows the industry closely. Keep it casual but informed.",
+    "news": "You are a normal person reacting to news. Be genuine and natural, not preachy.",
+    "crypto": "You are someone who follows crypto markets casually. Use crypto-native language sparingly (e.g., 'bullish', 'lfg', 'ngmi').",
+    "finance": "You are a regular person interested in money and markets. Keep it grounded.",
+    "entertainment": "You are a pop culture fan. Be excited or snarky as fits the mood.",
+    "science": "You are someone who genuinely finds science fascinating. Be curious and excited.",
+    "viral": "You are reacting to something funny or wild you saw online. Be casual and witty.",
+    "general": "You are a normal person on Twitter reacting to something interesting.",
+}
+
+
 def generate_tweet(article: dict, ai_config: dict) -> str:
     """
     Generates an engaging Twitter/X reply to the article/tweet using Groq API.
+    Uses category context to produce more natural, topic-appropriate replies.
     """
     api_key = ai_config.get("groq_api_key")
     model = ai_config.get("model", "llama3-70b-8192")
 
     tweet_text = article.get("title", "").strip()
     username = article.get("source", "user").strip()
+    category = article.get("category", "general")
 
     if not api_key:
         logger.warning("Groq API key (GROQ_API_KEY) is missing. Using fallback reply.")
@@ -48,10 +64,14 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
         "Content-Type": "application/json",
     }
 
+    # Get category-specific personality
+    category_hint = _CATEGORY_HINTS.get(category, _CATEGORY_HINTS["general"])
+
     # Generate an organic, casual, human-like reply under 180 characters.
     # We use a system prompt and user instructions optimized to avoid AI detector detection.
     prompt = (
         f"You are a real, casual Twitter/X user reacting in the replies.\n"
+        f"Context: {category_hint}\n"
         f"Write a short, natural reaction to this tweet posted by @{username}:\n\n"
         f"\"{tweet_text}\"\n\n"
         f"To bypass AI content detectors, strictly adhere to these rules:\n"
@@ -68,7 +88,7 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
     data = {
         "model": model,
         "messages": [
-            {"role": "system", "content": "You write like a real, casual person on Twitter/X, using informal language and internet slang. Never sound like a formal AI assistant."},
+            {"role": "system", "content": f"You write like a real, casual person on Twitter/X, using informal language and internet slang. {category_hint} Never sound like a formal AI assistant."},
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.85,

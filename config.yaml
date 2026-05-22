@@ -1,4 +1,4 @@
-# Basketball News Bot — Buffer API Edition
+# X/Twitter Reply Bot — Buffer API Edition
 # Secrets are loaded from environment variables (.env file or system env)
 # Never hardcode API keys here — use .env instead
 
@@ -10,16 +10,297 @@ buffer:
   mode: "${BUFFER_MODE:-addToQueue}"             # addToQueue | customScheduled | draft | shareNow
 
 # ── X Accounts to track ──────────────────────
-# Note: To monitor X accounts without the expensive official X API, convert the X profiles
-# to RSS feeds using services like RSS.app, Inoreader, OpenRSS, or self-hosted RSSHub.
-# Copy-paste the RSS URLs of the target accounts below.
+#
+# STRATEGY: We use a hybrid approach for maximum coverage.
+#
+#   TYPE 1 — "native" feeds: Official RSS feeds published by news orgs on their
+#            own websites. These are 100 % free and work forever.
+#
+#   TYPE 2 — "rsshub" feeds:  For X-only accounts (individuals, influencers)
+#            that don't have a website RSS feed, we use RSSHub. You MUST either:
+#              a) Self-host RSSHub (free, Docker) — see https://docs.rsshub.app
+#              b) Use a public instance (unreliable, may break)
+#            Set RSSHUB_BASE_URL in .env (default: https://rsshub.app)
+#
+#   TYPE 3 — "rssbridge" feeds: RSS-Bridge is another free self-hosted option.
+#            Set RSSBRIDGE_BASE_URL in .env if you use it.
+#
+# TIP: To add a new X account, simply add a new entry below. If the account
+#      belongs to an org with its own RSS, use the native URL. Otherwise use
+#      the RSSHub pattern:  ${RSSHUB_BASE_URL}/twitter/user/<username>
+#
+# ─────────────────────────────────────────────
+
+rsshub_base_url: "${RSSHUB_BASE_URL:-https://rsshub.app}"
+
 x_accounts:
-  - username: "ESPN"
+
+  # ═══════════════════════════════════════════
+  # SPORTS — NBA / Basketball
+  # ═══════════════════════════════════════════
+  - username: "ESPN_NBA"
+    category: "sports"
     rss_url: "https://www.espn.com/espn/rss/nba/news"
-  - username: "FabrizioRomano"
-    rss_url: "https://rss.app/feeds/your_fabrizioromano_feed_url.xml"
+
   - username: "BleacherReport"
-    rss_url: "https://rss.app/feeds/your_bleacherreport_feed_url.xml"
+    category: "sports"
+    rss_url: "https://bleacherreport.com/articles/feed"
+
+  - username: "TheAthletic"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/TheAthletic"
+
+  - username: "ShamsCharania"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/ShamsCharania"
+
+  - username: "wojespn"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/wojaborovsky"
+
+  - username: "NBAonTNT"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/NBAonTNT"
+
+  - username: "ABOROVSKY"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/ABALKBUSTERS"
+
+  - username: "NBA"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/NBA"
+
+  # ═══════════════════════════════════════════
+  # SPORTS — Football (Soccer)
+  # ═══════════════════════════════════════════
+  - username: "FabrizioRomano"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/FabrizioRomano"
+
+  - username: "ESPN_FC"
+    category: "sports"
+    rss_url: "https://www.espn.com/espn/rss/soccer/news"
+
+  - username: "BBCSport"
+    category: "sports"
+    rss_url: "http://feeds.bbci.co.uk/sport/rss.xml"
+
+  # ═══════════════════════════════════════════
+  # SPORTS — Football (NFL) & Others
+  # ═══════════════════════════════════════════
+  - username: "AdamSchefter"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/AdamSchefter"
+
+  - username: "RapSheet"
+    category: "sports"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/RapSheet"
+
+  - username: "ESPN_NFL"
+    category: "sports"
+    rss_url: "https://www.espn.com/espn/rss/nfl/news"
+
+  # ═══════════════════════════════════════════
+  # TECH & AI
+  # ═══════════════════════════════════════════
+  - username: "elonmusk"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/elonmusk"
+
+  - username: "sama"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/sama"
+
+  - username: "TechCrunch"
+    category: "tech"
+    rss_url: "https://techcrunch.com/feed/"
+
+  - username: "TheVerge"
+    category: "tech"
+    rss_url: "https://www.theverge.com/rss/index.xml"
+
+  - username: "ArsTechnica"
+    category: "tech"
+    rss_url: "https://feeds.arstechnica.com/arstechnica/index/"
+
+  - username: "WIRED"
+    category: "tech"
+    rss_url: "https://www.wired.com/feed/rss"
+
+  - username: "engadget"
+    category: "tech"
+    rss_url: "https://www.engadget.com/rss.xml"
+
+  - username: "OpenAI"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/OpenAI"
+
+  - username: "Google"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/Google"
+
+  - username: "MKBHD"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/MKBHD"
+
+  - username: "MrBeast"
+    category: "tech"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/MrBeast"
+
+  # ═══════════════════════════════════════════
+  # NEWS & POLITICS
+  # ═══════════════════════════════════════════
+  - username: "BBCNews"
+    category: "news"
+    rss_url: "http://feeds.bbci.co.uk/news/rss.xml"
+
+  - username: "BBCWorld"
+    category: "news"
+    rss_url: "http://feeds.bbci.co.uk/news/world/rss.xml"
+
+  - username: "Reuters"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/Reuters"
+
+  - username: "AP"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/AP"
+
+  - username: "CNN"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/CNN"
+
+  - username: "nikitatbh"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/nikitatbh"
+
+  - username: "WSJ"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/WSJ"
+
+  - username: "NYTimes"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/nytimes"
+
+  - username: "FoxNews"
+    category: "news"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/FoxNews"
+
+  # ═══════════════════════════════════════════
+  # CRYPTO & FINANCE
+  # ═══════════════════════════════════════════
+  - username: "CoinTelegraph"
+    category: "crypto"
+    rss_url: "https://cointelegraph.com/rss"
+
+  - username: "Decrypt"
+    category: "crypto"
+    rss_url: "https://decrypt.co/feed"
+
+  - username: "TheBlock"
+    category: "crypto"
+    rss_url: "https://www.theblock.co/rss.xml"
+
+  - username: "Bitcoin"
+    category: "crypto"
+    rss_url: "https://news.bitcoin.com/feed/"
+
+  - username: "CoinDesk"
+    category: "crypto"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/CoinDesk"
+
+  - username: "VitalikButerin"
+    category: "crypto"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/VitalikButerin"
+
+  - username: "caborovsky"
+    category: "crypto"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/cz_binance"
+
+  - username: "Bloomberg"
+    category: "finance"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/business"
+
+  - username: "CNBC"
+    category: "finance"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/CNBC"
+
+  # ═══════════════════════════════════════════
+  # ENTERTAINMENT & POP CULTURE
+  # ═══════════════════════════════════════════
+  - username: "PopCrave"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/PopCrave"
+
+  - username: "DiscussingFilm"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/DiscussingFilm"
+
+  - username: "IGN"
+    category: "entertainment"
+    rss_url: "https://feeds.feedburner.com/ign/all"
+
+  - username: "GameSpot"
+    category: "entertainment"
+    rss_url: "https://www.gamespot.com/feeds/mashup/"
+
+  - username: "Variety"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/Variety"
+
+  - username: "THR"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/THR"
+
+  - username: "KendrickLamar"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/kendaborovsky"
+
+  - username: "Drake"
+    category: "entertainment"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/Drake"
+
+  # ═══════════════════════════════════════════
+  # SCIENCE & SPACE
+  # ═══════════════════════════════════════════
+  - username: "NASA"
+    category: "science"
+    rss_url: "https://www.nasa.gov/rss/dyn/breaking_news.rss"
+
+  - username: "SpaceX"
+    category: "science"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/SpaceX"
+
+  - username: "SpaceDotCom"
+    category: "science"
+    rss_url: "https://www.space.com/feeds/all"
+
+  - username: "ScienceDaily"
+    category: "science"
+    rss_url: "https://www.sciencedaily.com/rss/all.xml"
+
+  - username: "NatGeo"
+    category: "science"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/NatGeo"
+
+  # ═══════════════════════════════════════════
+  # VIRAL / MEME / INTERNET CULTURE
+  # ═══════════════════════════════════════════
+  - username: "Daquan"
+    category: "viral"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/daborovsky"
+
+  - username: "Pubity"
+    category: "viral"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/pubity"
+
+  - username: "NoContextBrits"
+    category: "viral"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/NoContextBrits"
+
+  - username: "InternetH0F"
+    category: "viral"
+    rss_url: "${RSSHUB_BASE_URL:-https://rsshub.app}/twitter/user/InternetH0F"
 
 # ── AI (tweet generation) ────────────────────
 ai:
