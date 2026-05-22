@@ -126,67 +126,8 @@ x_accounts:
     rss_url: "https://news.google.com/rss/search?q=%22MrBeast%22+OR+%22Jimmy+Donaldson%22&hl=en-US&gl=US&ceid=US:en"
 
   # ═══════════════════════════════════════════
-  # NEWS & POLITICS
+  # FINANCE
   # ═══════════════════════════════════════════
-  - username: "BBCNews"
-    category: "news"
-    rss_url: "http://feeds.bbci.co.uk/news/rss.xml"
-
-  - username: "BBCWorld"
-    category: "news"
-    rss_url: "http://feeds.bbci.co.uk/news/world/rss.xml"
-
-  - username: "Reuters"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22Reuters%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "AP"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22Associated+Press%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "CNN"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22CNN%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "WSJ"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22Wall+Street+Journal%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "NYTimes"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22New+York+Times%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "FoxNews"
-    category: "news"
-    rss_url: "https://news.google.com/rss/search?q=%22Fox+News%22&hl=en-US&gl=US&ceid=US:en"
-
-  # ═══════════════════════════════════════════
-  # CRYPTO & FINANCE
-  # ═══════════════════════════════════════════
-  - username: "CoinTelegraph"
-    category: "crypto"
-    rss_url: "https://cointelegraph.com/rss"
-
-  - username: "Decrypt"
-    category: "crypto"
-    rss_url: "https://decrypt.co/feed"
-
-  - username: "TheBlock"
-    category: "crypto"
-    rss_url: "https://www.theblock.co/rss.xml"
-
-  - username: "Bitcoin"
-    category: "crypto"
-    rss_url: "https://news.bitcoin.com/feed/"
-
-  - username: "CoinDesk"
-    category: "crypto"
-    rss_url: "https://news.google.com/rss/search?q=%22CoinDesk%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "VitalikButerin"
-    category: "crypto"
-    rss_url: "https://news.google.com/rss/search?q=%22Vitalik+Buterin%22&hl=en-US&gl=US&ceid=US:en"
-
   - username: "Bloomberg"
     category: "finance"
     rss_url: "https://news.google.com/rss/search?q=%22Bloomberg+News%22&hl=en-US&gl=US&ceid=US:en"
@@ -225,29 +166,6 @@ x_accounts:
   - username: "Drake"
     category: "entertainment"
     rss_url: "https://news.google.com/rss/search?q=rapper+%22Drake%22+news&hl=en-US&gl=US&ceid=US:en"
-
-  # ═══════════════════════════════════════════
-  # SCIENCE & SPACE
-  # ═══════════════════════════════════════════
-  - username: "NASA"
-    category: "science"
-    rss_url: "https://www.nasa.gov/rss/dyn/breaking_news.rss"
-
-  - username: "SpaceX"
-    category: "science"
-    rss_url: "https://news.google.com/rss/search?q=%22SpaceX%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "SpaceDotCom"
-    category: "science"
-    rss_url: "https://www.space.com/feeds/all"
-
-  - username: "ScienceDaily"
-    category: "science"
-    rss_url: "https://www.sciencedaily.com/rss/all.xml"
-
-  - username: "NatGeo"
-    category: "science"
-    rss_url: "https://news.google.com/rss/search?q=%22National+Geographic%22&hl=en-US&gl=US&ceid=US:en"
 
 # ── AI (tweet generation) ────────────────────
 ai:
