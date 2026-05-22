@@ -45,7 +45,7 @@ def strip_emojis(text: str) -> str:
 
 
 def load_config(path="config.yaml") -> dict:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         raw = f.read()
 
     def expand(match):
