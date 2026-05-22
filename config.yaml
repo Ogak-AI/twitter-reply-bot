@@ -22,7 +22,232 @@ buffer:
 #
 # ──────────────────────────────────────────────
 
-x_accounts: []
+x_accounts:
+
+  # ═══════════════════════════════════════════
+  # SPORTS — NBA / Basketball
+  # ═══════════════════════════════════════════
+  - username: "ESPN_NBA"
+    category: "sports"
+    rss_url: "https://www.espn.com/espn/rss/nba/news"
+
+  - username: "HoopsRumors"
+    category: "sports"
+    rss_url: "https://www.hoopsrumors.com/feed"
+
+  - username: "HoopsHype"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22HoopsHype%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "SLAM_Online"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22SLAM+Magazine%22+OR+%22SLAM+online%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "ShamsCharania"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22Shams+Charania%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "wojespn"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22Adrian+Wojnarowski%22&hl=en-US&gl=US&ceid=US:en"
+
+  # ═══════════════════════════════════════════
+  # SPORTS — Football (Soccer) & NFL
+  # ═══════════════════════════════════════════
+  - username: "FabrizioRomano"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22Fabrizio+Romano%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "ESPN_FC"
+    category: "sports"
+    rss_url: "https://www.espn.com/espn/rss/soccer/news"
+
+  - username: "BBCSport"
+    category: "sports"
+    rss_url: "http://feeds.bbci.co.uk/sport/rss.xml"
+
+  - username: "AdamSchefter"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22Adam+Schefter%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "RapSheet"
+    category: "sports"
+    rss_url: "https://news.google.com/rss/search?q=%22Ian+Rapoport%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "ESPN_NFL"
+    category: "sports"
+    rss_url: "https://www.espn.com/espn/rss/nfl/news"
+
+  # ═══════════════════════════════════════════
+  # TECH & AI
+  # ═══════════════════════════════════════════
+  - username: "elonmusk"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22Elon+Musk%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "sama"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22Sam+Altman%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "TechCrunch"
+    category: "tech"
+    rss_url: "https://techcrunch.com/feed/"
+
+  - username: "TheVerge"
+    category: "tech"
+    rss_url: "https://www.theverge.com/rss/index.xml"
+
+  - username: "ArsTechnica"
+    category: "tech"
+    rss_url: "https://feeds.arstechnica.com/arstechnica/index/"
+
+  - username: "WIRED"
+    category: "tech"
+    rss_url: "https://www.wired.com/feed/rss"
+
+  - username: "engadget"
+    category: "tech"
+    rss_url: "https://www.engadget.com/rss.xml"
+
+  - username: "OpenAI"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22OpenAI%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "Google"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22Google%22+OR+%22Alphabet+Inc%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "MKBHD"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22Marques+Brownlee%22+OR+%22MKBHD%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "MrBeast"
+    category: "tech"
+    rss_url: "https://news.google.com/rss/search?q=%22MrBeast%22+OR+%22Jimmy+Donaldson%22&hl=en-US&gl=US&ceid=US:en"
+
+  # ═══════════════════════════════════════════
+  # NEWS & POLITICS
+  # ═══════════════════════════════════════════
+  - username: "BBCNews"
+    category: "news"
+    rss_url: "http://feeds.bbci.co.uk/news/rss.xml"
+
+  - username: "BBCWorld"
+    category: "news"
+    rss_url: "http://feeds.bbci.co.uk/news/world/rss.xml"
+
+  - username: "Reuters"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22Reuters%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "AP"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22Associated+Press%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "CNN"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22CNN%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "WSJ"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22Wall+Street+Journal%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "NYTimes"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22New+York+Times%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "FoxNews"
+    category: "news"
+    rss_url: "https://news.google.com/rss/search?q=%22Fox+News%22&hl=en-US&gl=US&ceid=US:en"
+
+  # ═══════════════════════════════════════════
+  # CRYPTO & FINANCE
+  # ═══════════════════════════════════════════
+  - username: "CoinTelegraph"
+    category: "crypto"
+    rss_url: "https://cointelegraph.com/rss"
+
+  - username: "Decrypt"
+    category: "crypto"
+    rss_url: "https://decrypt.co/feed"
+
+  - username: "TheBlock"
+    category: "crypto"
+    rss_url: "https://www.theblock.co/rss.xml"
+
+  - username: "Bitcoin"
+    category: "crypto"
+    rss_url: "https://news.bitcoin.com/feed/"
+
+  - username: "CoinDesk"
+    category: "crypto"
+    rss_url: "https://news.google.com/rss/search?q=%22CoinDesk%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "VitalikButerin"
+    category: "crypto"
+    rss_url: "https://news.google.com/rss/search?q=%22Vitalik+Buterin%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "Bloomberg"
+    category: "finance"
+    rss_url: "https://news.google.com/rss/search?q=%22Bloomberg+News%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "CNBC"
+    category: "finance"
+    rss_url: "https://news.google.com/rss/search?q=%22CNBC%22&hl=en-US&gl=US&ceid=US:en"
+
+  # ═══════════════════════════════════════════
+  # ENTERTAINMENT & POP CULTURE
+  # ═══════════════════════════════════════════
+  - username: "PopCrave"
+    category: "entertainment"
+    rss_url: "https://news.google.com/rss/search?q=%22Pop+Crave%22+OR+%22PopCrave%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "DiscussingFilm"
+    category: "entertainment"
+    rss_url: "https://news.google.com/rss/search?q=%22DiscussingFilm%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "IGN"
+    category: "entertainment"
+    rss_url: "https://feeds.feedburner.com/ign/all"
+
+  - username: "GameSpot"
+    category: "entertainment"
+    rss_url: "https://www.gamespot.com/feeds/mashup/"
+
+  - username: "Variety"
+    category: "entertainment"
+    rss_url: "https://news.google.com/rss/search?q=%22Variety%22+magazine&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "THR"
+    category: "entertainment"
+    rss_url: "https://news.google.com/rss/search?q=%22Hollywood+Reporter%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "Drake"
+    category: "entertainment"
+    rss_url: "https://news.google.com/rss/search?q=rapper+%22Drake%22+news&hl=en-US&gl=US&ceid=US:en"
+
+  # ═══════════════════════════════════════════
+  # SCIENCE & SPACE
+  # ═══════════════════════════════════════════
+  - username: "NASA"
+    category: "science"
+    rss_url: "https://www.nasa.gov/rss/dyn/breaking_news.rss"
+
+  - username: "SpaceX"
+    category: "science"
+    rss_url: "https://news.google.com/rss/search?q=%22SpaceX%22&hl=en-US&gl=US&ceid=US:en"
+
+  - username: "SpaceDotCom"
+    category: "science"
+    rss_url: "https://www.space.com/feeds/all"
+
+  - username: "ScienceDaily"
+    category: "science"
+    rss_url: "https://www.sciencedaily.com/rss/all.xml"
+
+  - username: "NatGeo"
+    category: "science"
+    rss_url: "https://news.google.com/rss/search?q=%22National+Geographic%22&hl=en-US&gl=US&ceid=US:en"
 
 # ── AI (tweet generation) ────────────────────
 ai:
