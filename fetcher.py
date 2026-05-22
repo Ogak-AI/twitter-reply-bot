@@ -2,8 +2,12 @@ import logging
 import time
 from datetime import datetime, timedelta
 import feedparser
+import requests
 
 logger = logging.getLogger(__name__)
+
+# A standard browser User-Agent to bypass Cloudflare/WAF block (HTTP 403) on major sites
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 
 def fetch_new_articles(feeds, seen_urls, max_age_hours=24):
@@ -11,6 +15,7 @@ def fetch_new_articles(feeds, seen_urls, max_age_hours=24):
     Fetches RSS feeds of X accounts.
     Returns a list of parsed article/tweet dicts.
     Supports both native RSS feeds and RSSHub/RSSBridge feeds.
+    Uses requests with a custom User-Agent to bypass HTTP 403 Forbidden blocks.
     """
     new_articles = []
     now = datetime.utcnow()
@@ -33,12 +38,16 @@ def fetch_new_articles(feeds, seen_urls, max_age_hours=24):
 
         logger.debug(f"Polling feed for @{username} [{category}]...")
         try:
-            feed = feedparser.parse(url)
+            # Fetch feed content using requests with a real User-Agent
+            headers = {"User-Agent": USER_AGENT}
+            response = requests.get(url, headers=headers, timeout=15)
 
-            # Check for HTTP errors from the feed
-            if hasattr(feed, "status") and feed.status >= 400:
-                logger.warning(f"[@{username}] Feed returned HTTP {feed.status}. Skipping.")
+            if response.status_code >= 400:
+                logger.warning(f"[@{username}] Feed returned HTTP {response.status_code}. Skipping.")
                 continue
+
+            # Parse the XML content from response
+            feed = feedparser.parse(response.text)
 
             if feed.bozo and not feed.entries:
                 logger.debug(f"[@{username}] Feed parse error (no entries): {feed.bozo_exception}")
