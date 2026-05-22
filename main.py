@@ -87,6 +87,41 @@ def setup_logging(config: dict):
 logger = logging.getLogger(__name__)
 
 
+# ── Health Check HTTP Server for Render ─────────────────────
+import json
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path in ("/", "/health"):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            try:
+                from healthcheck import check_health
+                health_data = check_health()
+                self.wfile.write(json.dumps(health_data).encode("utf-8"))
+            except Exception as e:
+                self.wfile.write(json.dumps({"healthy": False, "error": str(e)}).encode("utf-8"))
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not Found")
+
+    def log_message(self, format, *args):
+        # Prevent spamming console logs with every health check request
+        logger.debug(format % args)
+
+def start_health_server(port: int):
+    try:
+        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        logger.info(f"Health check server listening on port {port}")
+        server.serve_forever()
+    except Exception as e:
+        logger.error(f"Failed to start health check server: {e}")
+
+
 def resolve_channel_id(channel_id: str | None) -> str | None:
     if not channel_id:
         return None
@@ -155,6 +190,10 @@ def run():
     Path("logs").mkdir(exist_ok=True)
     setup_logging(config)
     init_db()
+
+    # Start health check server on background thread (required for Render web services)
+    port = int(os.environ.get("PORT", "10000"))
+    threading.Thread(target=start_health_server, args=(port,), daemon=True).start()
 
     logger.info("=" * 58)
     logger.info("X/Twitter Reply Bot — Buffer API Edition")

@@ -22,4 +22,6 @@ RUN mkdir -p data logs
 RUN useradd -m -u 1000 botuser && chown -R botuser:botuser /app
 USER botuser
 
+EXPOSE 10000
+
 CMD ["python", "main.py"]
