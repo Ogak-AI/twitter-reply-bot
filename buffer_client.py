@@ -36,9 +36,6 @@ def post_to_buffer(
         ... on UnexpectedError {
           message
         }
-        ... on UserError {
-          message
-        }
       }
     }
     """
@@ -69,8 +66,25 @@ def post_to_buffer(
             json={"query": query, "variables": variables},
             timeout=15
         )
+        
+        # Try to parse the JSON body to handle any GraphQL validation/top-level errors
+        body = {}
+        try:
+            body = response.json()
+        except ValueError:
+            pass
+
+        if body and "errors" in body:
+            error_msg = body["errors"][0].get("message", "Unknown GraphQL error")
+            logger.error(f"GraphQL top-level errors: {body['errors']}")
+            return {
+                "success": False,
+                "post_id": None,
+                "due_at": None,
+                "error": error_msg,
+            }
+
         response.raise_for_status()
-        body = response.json()
     except Exception as exc:
         logger.exception("Buffer GraphQL API request failed")
         return {
@@ -78,16 +92,6 @@ def post_to_buffer(
             "post_id": None,
             "due_at": None,
             "error": str(exc),
-        }
-
-    if "errors" in body:
-        error_msg = body["errors"][0].get("message", "Unknown GraphQL error")
-        logger.error(f"GraphQL top-level errors: {body['errors']}")
-        return {
-            "success": False,
-            "post_id": None,
-            "due_at": None,
-            "error": error_msg,
         }
 
     create_post_data = body.get("data", {}).get("createPost")
@@ -111,7 +115,7 @@ def post_to_buffer(
             "error": None,
         }
 
-    # Extract error message for any other type (MutationError, UnexpectedError, UserError, etc.)
+    # Extract error message for any other type (MutationError, UnexpectedError, etc.)
     error_msg = create_post_data.get("message")
     if not error_msg:
         error_msg = f"Unexpected response type: {typename} (Payload: {create_post_data})"

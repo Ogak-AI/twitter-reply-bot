@@ -1,6 +1,7 @@
 import logging
 import re
 import requests
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +43,21 @@ _CATEGORY_HINTS = {
     "general": "You are a normal person on Twitter reacting to something interesting.",
 }
 
+# Dynamic angles to vary the writing style across replies
+_REPLY_ANGLES = [
+    "a casual reaction or personal thought",
+    "a witty, slightly humorous observation",
+    "a curious, thoughtful question that invites conversation",
+    "an enthusiastic, supportive response",
+    "a grounded, constructive perspective",
+    "a clever, lighthearted piece of banter"
+]
+
 
 def generate_tweet(article: dict, ai_config: dict) -> str:
     """
     Generates an engaging Twitter/X reply to the article/tweet using Groq API.
-    Uses category context to produce more natural, topic-appropriate replies.
+    Uses category context and dynamic style angles to produce diverse, topic-appropriate replies.
     """
     api_key = ai_config.get("groq_api_key")
     model = ai_config.get("model", "llama3-70b-8192")
@@ -64,8 +75,9 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
         "Content-Type": "application/json",
     }
 
-    # Get category-specific personality
+    # Get category-specific personality and random reply angle
     category_hint = _CATEGORY_HINTS.get(category, _CATEGORY_HINTS["general"])
+    angle = random.choice(_REPLY_ANGLES)
 
     # Generate an organic, casual, human-like reply under 180 characters.
     # We use a system prompt and user instructions optimized to avoid AI detector detection.
@@ -76,13 +88,15 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
         f"\"{tweet_text}\"\n\n"
         f"To bypass AI content detectors, strictly adhere to these rules:\n"
         f"1. Write in a highly casual, informal human tone. Use natural sentence structures.\n"
-        f"2. Incorporate standard internet abbreviations or slight colloquialisms where natural (e.g., 'tbh', 'imo', 'fr', 'lowkey', 'crazy how').\n"
-        f"3. Do NOT use overly formal words, robotic transitions, exclamation mark overload, or bullet-point reasoning.\n"
-        f"4. Avoid typical AI introductory phrases or summaries.\n"
-        f"5. Do NOT include @{username} or any link in your response.\n"
-        f"6. Do NOT use any emojis whatsoever. Plain text only.\n"
-        f"7. Strictly keep the response under 170 characters and do NOT wrap it in quotes.\n"
-        f"8. Output ONLY the raw reply text."
+        f"2. Always write in grammatically complete sentences. Each reply must begin with a capital letter and end with proper punctuation (like a period, question mark, or exclamation mark). Do not write sentence fragments, hanging phrases, or run-on sentences without punctuation.\n"
+        f"3. Do not reuse the exact same words, cliches, or predictable phrasing templates across different replies. Vary your vocabulary and sentence structure dynamically so no two replies sound alike.\n"
+        f"4. Adopt the following specific writing style/angle for this reply: {angle}. This helps vary your writing style dynamically across posts so they do not all sound similar.\n"
+        f"5. Do NOT use overly formal words, robotic transitions, exclamation mark overload, or bullet-point reasoning.\n"
+        f"6. Avoid typical AI introductory phrases or summaries.\n"
+        f"7. Do NOT include @{username} or any link in your response.\n"
+        f"8. Do NOT use any emojis whatsoever. Plain text only.\n"
+        f"9. Strictly keep the response under 170 characters and do NOT wrap it in quotes.\n"
+        f"10. Output ONLY the raw reply text."
     )
 
     data = {
