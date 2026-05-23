@@ -176,8 +176,13 @@ ai:
 
 # ── Listener ─────────────────────────────────
 listener:
-  poll_interval_seconds: 30
+  poll_interval_seconds: 600
   max_article_age_hours: 2
+
+# ── Rate Limits & Throttling ─────────────────
+limits:
+  max_posts_per_24h: 95              # Maximum successful posts in a 24-hour rolling window
+  min_post_interval_seconds: 900     # Minimum spacing between posts in seconds (15 minutes)
 
 # ── Logging ──────────────────────────────────
 logging:

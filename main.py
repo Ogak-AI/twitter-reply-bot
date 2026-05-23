@@ -140,19 +140,58 @@ def resolve_channel_id(channel_id: str | None) -> str | None:
     return normalized
 
 
+def should_throttle_post(config: dict) -> tuple[bool, str]:
+    from database import get_posts_count_last_24h, get_last_posted_time, get_last_rate_limit_failure
+    
+    limits = config.get("limits", {})
+    max_posts = limits.get("max_posts_per_24h", 10)
+    min_interval = limits.get("min_post_interval_seconds", 1800)
+    
+    # 1. Check if Buffer API is in a 24-hour rate limit cooldown
+    last_failure = get_last_rate_limit_failure()
+    if last_failure:
+        elapsed = (datetime.utcnow() - last_failure).total_seconds()
+        if elapsed < 86400:
+            remaining = 86400 - elapsed
+            hours = remaining / 3600.0
+            return True, f"Buffer API is currently rate-limited (last failure: {last_failure.strftime('%Y-%m-%d %H:%M:%S')} UTC; cooldown remaining: {hours:.1f}h)"
+            
+    # 2. Check daily posting limit
+    posts_last_24h = get_posts_count_last_24h()
+    if posts_last_24h >= max_posts:
+        return True, f"Daily posting limit reached ({posts_last_24h}/{max_posts} in last 24h)"
+        
+    # 3. Check spacing interval since last successful post
+    last_post_time = get_last_posted_time()
+    if last_post_time:
+        elapsed = (datetime.utcnow() - last_post_time).total_seconds()
+        if elapsed < min_interval:
+            remaining = min_interval - elapsed
+            return True, f"Post spacing interval cooldown (last posted: {last_post_time.strftime('%Y-%m-%d %H:%M:%S')} UTC; wait another {remaining:.0f}s)"
+            
+    return False, ""
+
+
 def process_article(article: dict, config: dict):
     from generator import generate_tweet
     from buffer_client import post_to_buffer
     from database import mark_seen, save_post, update_post
 
+    logger.info("")
+    category = article.get('category', 'general')
+    logger.info(f"[NEW] [{article['source']}] [{category}] {article['title'][:75]}")
+
+    # Check throttling BEFORE generating the tweet or posting
+    throttled, reason = should_throttle_post(config)
+    if throttled:
+        logger.warning(f"[THROTTLE] Skipping Buffer post: {reason}")
+        mark_seen(article["url"], article["title"], article["source"])
+        return
+
     api_key    = config["buffer"]["api_key"]
     api_url    = config["buffer"].get("api_url", "https://api.buffer.com")
     channel_id = resolve_channel_id(config["buffer"]["channel_id"])
     mode       = config["buffer"].get("mode", "addToQueue")
-
-    logger.info("")
-    category = article.get('category', 'general')
-    logger.info(f"[NEW] [{article['source']}] [{category}] {article['title'][:75]}")
 
     try:
         reply_text = generate_tweet(article, config["ai"])

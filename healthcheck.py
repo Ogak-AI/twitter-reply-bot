@@ -30,7 +30,7 @@ def check_health() -> dict:
         else:
             conn = sqlite3.connect(db_path)
             total = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
-            recent_cutoff = (datetime.utcnow() - timedelta(hours=6)).isoformat()
+            recent_cutoff = (datetime.utcnow() - timedelta(hours=6)).strftime("%Y-%m-%d %H:%M:%S")
             recent = conn.execute(
                 "SELECT COUNT(*) FROM posts WHERE status='posted' AND created_at > ?",
                 (recent_cutoff,)

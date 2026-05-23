@@ -72,3 +72,60 @@ def update_post(post_id, status, buffer_post_id=None, error=None):
     )
     conn.commit()
     conn.close()
+
+
+from datetime import datetime
+
+def get_posts_count_last_24h() -> int:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.execute(
+        "SELECT COUNT(*) FROM posts WHERE status = 'posted' AND created_at > datetime('now', '-24 hours')"
+    )
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
+
+
+def get_last_posted_time() -> datetime | None:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.execute(
+        "SELECT created_at FROM posts WHERE status = 'posted' ORDER BY created_at DESC LIMIT 1"
+    )
+    row = cursor.fetchone()
+    conn.close()
+    if row and row[0]:
+        try:
+            ts_str = row[0].replace("T", " ")
+            for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
+                try:
+                    return datetime.strptime(ts_str, fmt)
+                except ValueError:
+                    continue
+        except Exception:
+            pass
+    return None
+
+
+def get_last_rate_limit_failure() -> datetime | None:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.execute(
+        """
+        SELECT created_at FROM posts 
+        WHERE status = 'failed' 
+          AND (error LIKE '%RATE_LIMIT_EXCEEDED%' OR error LIKE '%Too many requests%')
+        ORDER BY created_at DESC LIMIT 1
+        """
+    )
+    row = cursor.fetchone()
+    conn.close()
+    if row and row[0]:
+        try:
+            ts_str = row[0].replace("T", " ")
+            for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
+                try:
+                    return datetime.strptime(ts_str, fmt)
+                except ValueError:
+                    continue
+        except Exception:
+            pass
+    return None
