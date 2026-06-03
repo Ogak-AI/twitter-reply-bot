@@ -76,7 +76,7 @@ listener:
 
 # ── Viral Content Filter ─────────────────────
 viral:
-  min_score: 7                           # Minimum viral score (1-10) to post — 7+ = high viral
+  min_score: 1                           # Post ALL content (1 = no filtering) — images still required
   scorer_timeout: 5                      # Groq API timeout for viral scoring (seconds)
 
 # ── Rate Limits & Throttling ─────────────────
