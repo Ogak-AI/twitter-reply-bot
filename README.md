@@ -2,7 +2,7 @@
 
 A lightweight FIFA World Cup 2026 news listener that polls configured RSS feeds, generates tweet content from new articles, and records post activity in SQLite.
 
-> Note: This bot is **strictly focused on FIFA World Cup 2026** content only. All feeds, AI prompts, and reply generation are tailored exclusively to WC2026 news, teams, venues, matches, and players.
+> Note: This bot is **strictly focused on FIFA World Cup 2026** content only. All feeds, AI prompts, and post generation are tailored exclusively to WC2026 news, teams, venues, matches, and players.
 
 ## What this project contains
 
@@ -10,7 +10,7 @@ A lightweight FIFA World Cup 2026 news listener that polls configured RSS feeds,
 - `config.yaml` — feed list (World Cup 2026 sources only), Buffer settings, AI settings, listener options, logging settings
 - `buffer_client.py` — Buffer API posting client
 - `fetcher.py` — RSS feed fetcher (Google News RSS for World Cup 2026 keywords)
-- `generator.py` — AI-powered tweet reply generator (World Cup 2026 persona)
+- `generator.py` — AI-powered tweet post generator (World Cup 2026 persona)
 - `database.py` — SQLite persistence for seen articles and posting status
 - `healthcheck.py` — local health check script for monitoring
 - `deploy.sh` — Docker / server deployment helper
@@ -24,7 +24,7 @@ A lightweight FIFA World Cup 2026 news listener that polls configured RSS feeds,
 - Tracks seen articles and posting state in `data/bot.db`
 - Writes logs to `logs/bot.log`
 - Polls RSS feeds every `listener.poll_interval_seconds`
-- Generates World Cup 2026-themed tweet replies using `generator.py` (Groq/LLaMA)
+- Generates World Cup 2026-themed original tweets using `generator.py` (Groq/LLaMA)
 - Posts to Buffer using `buffer_client.py`
 
 ## Requirements
@@ -150,7 +150,7 @@ sets up a virtualenv, and installs a systemd service at `/etc/systemd/system/wor
 3. It scans for already seen posts
 4. It polls World Cup 2026 RSS feeds periodically
 5. For each new article it:
-   - generates a World Cup 2026-themed tweet reply
+   - generates a World Cup 2026-themed original tweet
    - saves a pending post record
    - posts to Buffer via Buffer API
    - updates database status

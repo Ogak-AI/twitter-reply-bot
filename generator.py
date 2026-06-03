@@ -38,12 +38,12 @@ _CATEGORY_HINTS = {
 # Default hint for any article — always stays on World Cup 2026 topic
 _DEFAULT_HINT = _CATEGORY_HINTS["worldcup"]
 
-# Dynamic angles to vary the writing style across replies
-_REPLY_ANGLES = [
-    "a casual reaction or personal thought",
+# Dynamic angles to vary the writing style across posts
+_POST_ANGLES = [
+    "a casual hot take or personal opinion",
     "a witty, slightly humorous observation",
     "a curious, thoughtful question that invites conversation",
-    "an enthusiastic, supportive response",
+    "an enthusiastic, hype-filled reaction",
     "a grounded, constructive perspective",
     "a clever, lighthearted piece of banter"
 ]
@@ -51,53 +51,52 @@ _REPLY_ANGLES = [
 
 def generate_tweet(article: dict, ai_config: dict) -> str:
     """
-    Generates an engaging Twitter/X reply to the article/tweet using Groq API.
-    Uses category context and dynamic style angles to produce diverse, topic-appropriate replies.
+    Generates an engaging original Twitter/X post about a World Cup 2026 news article using Groq API.
+    Uses category context and dynamic style angles to produce diverse, topic-appropriate posts.
     """
     api_key = ai_config.get("groq_api_key")
     model = ai_config.get("model", "llama3-70b-8192")
 
-    tweet_text = article.get("title", "").strip()
-    username = article.get("source", "user").strip()
+    headline = article.get("title", "").strip()
     category = article.get("category", "general")
 
     if not api_key:
-        logger.warning("Groq API key (GROQ_API_KEY) is missing. Using fallback reply.")
-        return "Wow, that's really interesting! Thanks for sharing."
+        logger.warning("Groq API key (GROQ_API_KEY) is missing. Using fallback post.")
+        return "World Cup 2026 is going to be something special."
 
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
-    # Get category-specific personality and random reply angle
+    # Get category-specific personality and random post angle
     category_hint = _CATEGORY_HINTS.get(category, _DEFAULT_HINT)
-    angle = random.choice(_REPLY_ANGLES)
+    angle = random.choice(_POST_ANGLES)
 
-    # Generate an organic, casual, human-like reply under 180 characters.
+    # Generate an organic, casual, human-like original post under 240 characters.
     # We use a system prompt and user instructions optimized to avoid AI detector detection.
     prompt = (
-        f"You are a real, casual Twitter/X user reacting in the replies.\n"
+        f"You are a real, casual Twitter/X user posting about World Cup 2026 news.\n"
         f"Context: {category_hint}\n"
-        f"Write a short, natural reaction to this tweet posted by @{username}:\n\n"
-        f"\"{tweet_text}\"\n\n"
+        f"Write an original, standalone tweet about this World Cup 2026 news headline:\n\n"
+        f"\"{headline}\"\n\n"
         f"To bypass AI content detectors, strictly adhere to these rules:\n"
         f"1. Write in a highly casual, informal human tone. Use natural sentence structures.\n"
-        f"2. Always write in grammatically complete sentences. Each reply must begin with a capital letter and end with proper punctuation (like a period, question mark, or exclamation mark). Do not write sentence fragments, hanging phrases, or run-on sentences without punctuation.\n"
-        f"3. Do not reuse the exact same words, cliches, or predictable phrasing templates across different replies. Vary your vocabulary and sentence structure dynamically so no two replies sound alike.\n"
-        f"4. Adopt the following specific writing style/angle for this reply: {angle}. This helps vary your writing style dynamically across posts so they do not all sound similar.\n"
+        f"2. Always write in grammatically complete sentences. Each post must begin with a capital letter and end with proper punctuation (like a period, question mark, or exclamation mark). Do not write sentence fragments, hanging phrases, or run-on sentences without punctuation.\n"
+        f"3. Do not reuse the exact same words, cliches, or predictable phrasing templates across different posts. Vary your vocabulary and sentence structure dynamically so no two posts sound alike.\n"
+        f"4. Adopt the following specific writing style/angle for this post: {angle}. This helps vary your writing style dynamically across posts so they do not all sound similar.\n"
         f"5. Do NOT use overly formal words, robotic transitions, exclamation mark overload, or bullet-point reasoning.\n"
         f"6. Avoid typical AI introductory phrases or summaries.\n"
-        f"7. Do NOT include @{username} or any link in your response.\n"
+        f"7. Do NOT include any @mentions or links in your post.\n"
         f"8. Do NOT use any emojis whatsoever. Plain text only.\n"
-        f"9. Strictly keep the response under 170 characters and do NOT wrap it in quotes.\n"
-        f"10. Output ONLY the raw reply text."
+        f"9. Strictly keep the post under 220 characters and do NOT wrap it in quotes.\n"
+        f"10. Output ONLY the raw post text."
     )
 
     data = {
         "model": model,
         "messages": [
-            {"role": "system", "content": f"You write like a real, casual person on Twitter/X, using informal language and internet slang. {category_hint} Never sound like a formal AI assistant."},
+            {"role": "system", "content": f"You write like a real, casual person on Twitter/X, posting original thoughts about World Cup 2026 news. {category_hint} Never sound like a formal AI assistant."},
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.85,
@@ -112,20 +111,20 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
             timeout=15,
         )
         response.raise_for_status()
-        reply_content = response.json()["choices"][0]["message"]["content"].strip()
+        post_content = response.json()["choices"][0]["message"]["content"].strip()
 
         # Clean any wrapping quotes
-        if reply_content.startswith('"') and reply_content.endswith('"'):
-            reply_content = reply_content[1:-1].strip()
-        if reply_content.startswith("'") and reply_content.endswith("'"):
-            reply_content = reply_content[1:-1].strip()
+        if post_content.startswith('"') and post_content.endswith('"'):
+            post_content = post_content[1:-1].strip()
+        if post_content.startswith("'") and post_content.endswith("'"):
+            post_content = post_content[1:-1].strip()
 
-        reply_content = strip_emojis(reply_content).strip()
-        if not reply_content:
-            reply_content = "Interesting point, thanks for sharing."
+        post_content = strip_emojis(post_content).strip()
+        if not post_content:
+            post_content = "World Cup 2026 is shaping up to be absolutely massive."
 
-        return reply_content
+        return post_content
 
     except Exception as e:
         logger.error(f"Error calling Groq API: {e}", exc_info=True)
-        return "Insightful update! Appreciate you sharing this."
+        return "The World Cup 2026 hype is real, this tournament is going to be something else."

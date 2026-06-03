@@ -1,4 +1,4 @@
-# World Cup 2026 Reply Bot — Buffer API Edition
+# World Cup 2026 News Bot — Buffer API Edition
 # Secrets are loaded from environment variables (.env file or system env)
 # Never hardcode API keys here — use .env instead
 

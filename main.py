@@ -1,6 +1,6 @@
 """
-main.py — World Cup 2026 Reply Bot.
-Polls World Cup 2026 RSS feeds. On new article -> generate football-themed reply -> post via Buffer API.
+main.py — World Cup 2026 News Bot.
+Polls World Cup 2026 RSS feeds. On new article -> generate original tweet -> post via Buffer API.
 Loads secrets from environment variables / .env file.
 """
 
@@ -194,18 +194,17 @@ def process_article(article: dict, config: dict):
     mode       = config["buffer"].get("mode", "addToQueue")
 
     try:
-        reply_text = generate_tweet(article, config["ai"])
-        reply_text = strip_emojis(reply_text).strip()
-        # Format the final post to Twitter: @username [reply] [link to tweet]
-        author = article.get("source", "user").replace("@", "").strip()
-        tweet = f"@{author} {reply_text} {article['url']}"
+        post_text = generate_tweet(article, config["ai"])
+        post_text = strip_emojis(post_text).strip()
+        # Format the final post: [generated text] [article link]
+        tweet = f"{post_text} {article['url']}"
         tweet = strip_emojis(tweet)
         tweet = re.sub(r"\s+", " ", tweet).strip()
     except Exception as e:
         logger.error(f"Tweet generation failed: {e}")
         return
 
-    logger.info(f"[REPLY] ({len(tweet)} chars): {tweet}")
+    logger.info(f"[POST] ({len(tweet)} chars): {tweet}")
 
     post_id = save_post(article["url"], tweet)
     mark_seen(article["url"], article["title"], article["source"])
@@ -244,7 +243,7 @@ def run():
     threading.Thread(target=start_health_server, args=(port,), daemon=True).start()
 
     logger.info("=" * 58)
-    logger.info("World Cup 2026 Reply Bot — Buffer API Edition")
+    logger.info("World Cup 2026 News Bot — Buffer API Edition")
     logger.info(f"Accounts : {len(feeds)} sources")
     # Show category breakdown
     from collections import Counter
