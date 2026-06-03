@@ -10,7 +10,8 @@ def post_to_buffer(
     channel_id: str,
     api_key: str,
     api_url: str = "https://api.buffer.com",
-    mode: str = "addToQueue"
+    mode: str = "addToQueue",
+    image_url: str | None = None,
 ) -> dict[str, Any]:
     """
     Posts a tweet to Buffer using the new GraphQL API.
@@ -49,15 +50,20 @@ def post_to_buffer(
     elif mode not in ["addToQueue", "customScheduled", "shareNow"]:
         graphql_mode = "addToQueue"
 
-    variables = {
-        "input": {
-            "text": tweet,
-            "channelId": channel_id,
-            "schedulingType": "automatic",
-            "mode": graphql_mode,
-            "saveToDraft": save_to_draft
-        }
+    post_input = {
+        "text": tweet,
+        "channelId": channel_id,
+        "schedulingType": "automatic",
+        "mode": graphql_mode,
+        "saveToDraft": save_to_draft,
     }
+
+    # Attach image asset if a publicly accessible image URL is provided
+    if image_url:
+        post_input["assets"] = [{"image": {"url": image_url}}]
+        logger.info(f"[IMAGE] Attaching image to post: {image_url[:80]}")
+
+    variables = {"input": post_input}
 
     try:
         response = requests.post(

@@ -181,6 +181,15 @@ def process_article(article: dict, config: dict):
     category = article.get('category', 'general')
     logger.info(f"[NEW] [{article['source']}] [{category}] {article['title'][:75]}")
 
+    # ── Require an article image — skip posting if none found ──
+    image_url = article.get("image_url")
+    if not image_url:
+        logger.warning(f"[SKIP] No image found for article — skipping post: {article['title'][:60]}")
+        mark_seen(article["url"], article["title"], article["source"])
+        return
+
+    logger.info(f"[IMAGE] Using image: {image_url[:80]}")
+
     # Check throttling BEFORE generating the tweet or posting
     throttled, reason = should_throttle_post(config)
     if throttled:
@@ -215,11 +224,11 @@ def process_article(article: dict, config: dict):
         return
 
     time.sleep(random.uniform(2.0, 5.0))
-    result = post_to_buffer(tweet, channel_id, api_key, api_url=api_url, mode=mode)
+    result = post_to_buffer(tweet, channel_id, api_key, api_url=api_url, mode=mode, image_url=image_url)
 
     if result["success"]:
         update_post(post_id, "posted", buffer_post_id=result["post_id"])
-        logger.info(f"[OK] Posted | Buffer ID: {result['post_id']} | Due: {result['due_at']}")
+        logger.info(f"[OK] Posted with image | Buffer ID: {result['post_id']} | Due: {result['due_at']}")
     else:
         update_post(post_id, "failed", error=result["error"])
         logger.error(f"[FAIL] Buffer post failed: {result['error']}")

@@ -4,11 +4,51 @@ from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import feedparser
 import requests
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
 # A standard browser User-Agent to bypass Cloudflare/WAF block (HTTP 403) on major sites
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+
+def extract_article_image(url: str) -> str | None:
+    """
+    Fetches the article page and extracts the primary image URL from
+    Open Graph (og:image) or Twitter Card (twitter:image) meta tags.
+    Returns None on any failure — callers should handle gracefully.
+    """
+    try:
+        headers = {"User-Agent": USER_AGENT}
+        resp = requests.get(url, headers=headers, timeout=8, allow_redirects=True)
+        if resp.status_code >= 400:
+            logger.debug(f"[IMAGE] HTTP {resp.status_code} fetching {url}")
+            return None
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # Try og:image first (most widely supported)
+        og_tag = soup.find("meta", property="og:image")
+        if og_tag and og_tag.get("content", "").strip():
+            image_url = og_tag["content"].strip()
+            if image_url.startswith("http"):
+                logger.debug(f"[IMAGE] Found og:image: {image_url[:80]}")
+                return image_url
+
+        # Fallback to twitter:image
+        tw_tag = soup.find("meta", attrs={"name": "twitter:image"})
+        if tw_tag and tw_tag.get("content", "").strip():
+            image_url = tw_tag["content"].strip()
+            if image_url.startswith("http"):
+                logger.debug(f"[IMAGE] Found twitter:image: {image_url[:80]}")
+                return image_url
+
+        logger.debug(f"[IMAGE] No og:image or twitter:image found for {url[:60]}")
+        return None
+
+    except Exception as e:
+        logger.debug(f"[IMAGE] Error extracting image from {url[:60]}: {e}")
+        return None
 
 
 def fetch_single_feed(feed_info, cutoff_time, now):
@@ -69,12 +109,16 @@ def fetch_single_feed(feed_info, cutoff_time, now):
             if published_dt < cutoff_time:
                 continue
 
+            # Extract the article's primary image from the source page
+            image_url = extract_article_image(link)
+
             articles.append({
                 "url": link,
                 "title": title,
                 "source": username,
                 "category": category,
-                "published_at": published_dt.isoformat()
+                "published_at": published_dt.isoformat(),
+                "image_url": image_url,
             })
 
     except Exception as e:
