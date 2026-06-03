@@ -71,13 +71,18 @@ ai:
 
 # ── Listener ─────────────────────────────────
 listener:
-  poll_interval_seconds: 600
-  max_article_age_hours: 2
+  poll_interval_seconds: 90              # Check feeds every 90 seconds for speed
+  max_article_age_hours: 0.5             # Only articles from the last 30 minutes
+
+# ── Viral Content Filter ─────────────────────
+viral:
+  min_score: 7                           # Minimum viral score (1-10) to post — 7+ = high viral
+  scorer_timeout: 8                      # Groq API timeout for viral scoring (seconds)
 
 # ── Rate Limits & Throttling ─────────────────
 limits:
-  max_posts_per_24h: 95              # Maximum successful posts in a 24-hour rolling window
-  min_post_interval_seconds: 900     # Minimum spacing between posts in seconds (15 minutes)
+  max_posts_per_24h: 50              # Fewer but higher-quality viral posts
+  min_post_interval_seconds: 120     # 2-minute spacing — fast enough for breaking news
 
 # ── Logging ──────────────────────────────────
 logging:

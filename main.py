@@ -11,7 +11,6 @@ import time
 import yaml
 import os
 import re
-import random
 import colorlog
 from datetime import datetime
 from pathlib import Path
@@ -176,6 +175,7 @@ def process_article(article: dict, config: dict):
     from generator import generate_tweet
     from buffer_client import post_to_buffer
     from database import mark_seen, save_post, update_post
+    from viral_scorer import score_viral_potential
 
     logger.info("")
     category = article.get('category', 'general')
@@ -189,6 +189,20 @@ def process_article(article: dict, config: dict):
         return
 
     logger.info(f"[IMAGE] Using image: {image_url[:80]}")
+
+    # ── Viral scoring — only post high-viral content ──
+    viral_config = config.get("viral", {})
+    min_score = viral_config.get("min_score", 7)
+    scorer_timeout = viral_config.get("scorer_timeout", 8)
+
+    viral_score = score_viral_potential(article.get("title", ""), config["ai"], timeout=scorer_timeout)
+
+    if viral_score < min_score:
+        logger.info(f"[SKIP VIRAL {viral_score}/10] Below threshold ({min_score}) — {article['title'][:60]}")
+        mark_seen(article["url"], article["title"], article["source"])
+        return
+
+    logger.info(f"[VIRAL {viral_score}/10] Passed! — {article['title'][:60]}")
 
     # Check throttling BEFORE generating the tweet or posting
     throttled, reason = should_throttle_post(config)
@@ -205,9 +219,8 @@ def process_article(article: dict, config: dict):
     try:
         post_text = generate_tweet(article, config["ai"])
         post_text = strip_emojis(post_text).strip()
-        # Format the final post: [generated text] [article link]
-        tweet = f"{post_text} {article['url']}"
-        tweet = strip_emojis(tweet)
+        # Tweet is text-only (no link) — the attached image provides visual context
+        tweet = strip_emojis(post_text)
         tweet = re.sub(r"\s+", " ", tweet).strip()
     except Exception as e:
         logger.error(f"Tweet generation failed: {e}")
@@ -223,12 +236,12 @@ def process_article(article: dict, config: dict):
         update_post(post_id, "no_channel")
         return
 
-    time.sleep(random.uniform(2.0, 5.0))
+    # Post immediately — no artificial delay for speed
     result = post_to_buffer(tweet, channel_id, api_key, api_url=api_url, mode=mode, image_url=image_url)
 
     if result["success"]:
         update_post(post_id, "posted", buffer_post_id=result["post_id"])
-        logger.info(f"[OK] Posted with image | Buffer ID: {result['post_id']} | Due: {result['due_at']}")
+        logger.info(f"[OK] Posted with image | Viral: {viral_score}/10 | Buffer ID: {result['post_id']} | Due: {result['due_at']}")
     else:
         update_post(post_id, "failed", error=result["error"])
         logger.error(f"[FAIL] Buffer post failed: {result['error']}")
@@ -285,18 +298,38 @@ def run():
     
     if unseen_articles:
         logger.info(f"Found {len(unseen_articles)} unseen article(s) in feeds.")
-        # Sort oldest to newest
-        unseen_articles.sort(key=lambda x: x.get("published_at", ""))
-        latest_unseen = unseen_articles[-1]
+        # Sort newest first — freshest content gets priority
+        unseen_articles.sort(key=lambda x: x.get("published_at", ""), reverse=True)
         
-        # Process the single most recent unseen article
-        logger.info(f"Processing latest unseen article on startup: {latest_unseen['title']}")
-        process_article(latest_unseen, config)
-        session_count = 1
+        # Find the newest article that passes viral scoring
+        from viral_scorer import score_viral_potential
+        viral_config = config.get("viral", {})
+        min_score = viral_config.get("min_score", 7)
+        scorer_timeout = viral_config.get("scorer_timeout", 8)
+        
+        best_article = None
+        for art in unseen_articles:
+            # Skip articles without images
+            if not art.get("image_url"):
+                continue
+            score = score_viral_potential(art.get("title", ""), config["ai"], timeout=scorer_timeout)
+            if score >= min_score:
+                best_article = art
+                logger.info(f"[STARTUP VIRAL {score}/10] Selected: {art['title'][:60]}")
+                break
+            else:
+                logger.info(f"[STARTUP SKIP {score}/10] {art['title'][:60]}")
+        
+        if best_article:
+            process_article(best_article, config)
+            session_count = 1
+        else:
+            logger.info("No viral articles found on startup — all below threshold.")
         
         # Mark all other unseen articles as seen in DB to avoid backlog spam
-        for art in unseen_articles[:-1]:
-            mark_seen(art["url"], art["title"], art["source"])
+        for art in unseen_articles:
+            if art != best_article:
+                mark_seen(art["url"], art["title"], art["source"])
             
     # Populate the in-memory seen_urls set with all current articles to prevent future checks
     for art in existing_articles:
@@ -309,6 +342,8 @@ def run():
             new_articles = fetch_new_articles(feeds, seen_urls, max_age_hours=max_age_hrs)
 
             if new_articles:
+                # Sort newest first — post the freshest viral content first
+                new_articles.sort(key=lambda x: x.get("published_at", ""), reverse=True)
                 logger.info(f"[NEW] {len(new_articles)} new article(s)")
                 for article in new_articles:
                     if is_seen(article["url"]):
@@ -317,8 +352,6 @@ def run():
                     session_count += 1
                     stats = get_stats()
                     logger.info(f"[STATS] Session: {session_count} | Total posted: {stats['posted']} | Failed: {stats['failed']}")
-                    if len(new_articles) > 1:
-                        time.sleep(random.uniform(4, 10))
             else:
                 logger.debug(f"No new articles. Next check in {poll_secs}s")
 

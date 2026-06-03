@@ -1,5 +1,7 @@
 import logging
 import time
+import re as _re
+import base64
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import feedparser
@@ -12,17 +14,86 @@ logger = logging.getLogger(__name__)
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 
-def extract_article_image(url: str) -> str | None:
+def _decode_google_news_url(url: str) -> str | None:
     """
-    Fetches the article page and extracts the primary image URL from
-    Open Graph (og:image) or Twitter Card (twitter:image) meta tags.
-    Returns None on any failure — callers should handle gracefully.
+    Attempts to decode the actual article URL from a Google News RSS link.
+    Google News encodes the real URL in base64 within the path.
     """
+    try:
+        # Extract the encoded segment after /articles/
+        match = _re.search(r"/articles/([A-Za-z0-9_-]+)", url)
+        if not match:
+            return None
+        encoded = match.group(1)
+        # Add padding for base64
+        padded = encoded + "=" * (4 - len(encoded) % 4)
+        decoded = base64.urlsafe_b64decode(padded)
+        # Find all http(s) URLs embedded in the decoded protobuf bytes
+        decoded_str = decoded.decode("latin-1")
+        urls = _re.findall(r"https?://[^\s\x00-\x1f\"'<>\x7f-\x9f]+", decoded_str)
+        # Return the first non-Google URL
+        for u in urls:
+            if "google.com" not in u and "google.co." not in u:
+                return u.rstrip(".,;")
+    except Exception:
+        pass
+    return None
+
+
+def resolve_google_news_url(url: str) -> str:
+    """
+    Resolves a Google News redirect URL to the actual article URL.
+    Uses base64 decoding first (instant), then HTTP redirect fallback.
+    Returns the original URL if resolution fails.
+    """
+    if "news.google.com" not in url:
+        return url
+
+    # Strategy 1: Decode the base64-encoded URL from the path (fastest, no HTTP)
+    decoded = _decode_google_news_url(url)
+    if decoded:
+        logger.debug(f"[RESOLVE] Decoded Google News URL → {decoded[:80]}")
+        return decoded
+
+    # Strategy 2: Follow HTTP redirects
     try:
         headers = {"User-Agent": USER_AGENT}
         resp = requests.get(url, headers=headers, timeout=8, allow_redirects=True)
+        final = resp.url
+        if "news.google.com" not in final and "google.com/rss" not in final:
+            logger.debug(f"[RESOLVE] Redirected Google News URL → {final[:80]}")
+            return final
+
+        # Strategy 3: Parse the Google News page for the actual link
+        soup = BeautifulSoup(resp.text, "html.parser")
+        # Check <a> tags linking to external articles
+        for a_tag in soup.find_all("a", href=True):
+            href = a_tag["href"]
+            if href.startswith("http") and "google.com" not in href:
+                logger.debug(f"[RESOLVE] Found article link in page → {href[:80]}")
+                return href
+    except Exception as e:
+        logger.debug(f"[RESOLVE] HTTP resolution failed: {e}")
+
+    logger.debug(f"[RESOLVE] Could not resolve Google News URL: {url[:60]}")
+    return url
+
+
+def extract_article_image(url: str) -> str | None:
+    """
+    Resolves Google News URLs to the actual article page, then extracts
+    the primary image from Open Graph (og:image) or Twitter Card (twitter:image) meta tags.
+    Returns None on any failure — callers should handle gracefully.
+    """
+    # Resolve Google News redirect to actual article URL
+    resolved_url = resolve_google_news_url(url)
+
+    try:
+        headers = {"User-Agent": USER_AGENT}
+        # Only fetch the page if we haven't already (i.e. URL was decoded, not HTTP-fetched)
+        resp = requests.get(resolved_url, headers=headers, timeout=8, allow_redirects=True)
         if resp.status_code >= 400:
-            logger.debug(f"[IMAGE] HTTP {resp.status_code} fetching {url}")
+            logger.debug(f"[IMAGE] HTTP {resp.status_code} fetching {resolved_url[:60]}")
             return None
 
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -43,11 +114,11 @@ def extract_article_image(url: str) -> str | None:
                 logger.debug(f"[IMAGE] Found twitter:image: {image_url[:80]}")
                 return image_url
 
-        logger.debug(f"[IMAGE] No og:image or twitter:image found for {url[:60]}")
+        logger.debug(f"[IMAGE] No og:image or twitter:image found for {resolved_url[:60]}")
         return None
 
     except Exception as e:
-        logger.debug(f"[IMAGE] Error extracting image from {url[:60]}: {e}")
+        logger.debug(f"[IMAGE] Error extracting image from {resolved_url[:60]}: {e}")
         return None
 
 
