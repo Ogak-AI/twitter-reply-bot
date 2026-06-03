@@ -1,5 +1,5 @@
 #!/bin/bash
-# deploy.sh — One-command production deployment
+# deploy.sh — One-command production deployment for World Cup 2026 Bot
 # Supports both Docker and bare-metal (systemd) deployments
 #
 # Usage:
@@ -13,9 +13,9 @@
 
 set -e
 
-APP_DIR="/opt/bball-buffer-bot"
-SERVICE_NAME="bball-bot"
-REPO_URL="https://github.com/YOUR_USERNAME/bball-buffer-bot.git"   # Set your repo URL
+APP_DIR="/opt/worldcup-buffer-bot"
+SERVICE_NAME="worldcup-bot"
+REPO_URL="https://github.com/YOUR_USERNAME/worldcup-buffer-bot.git"   # Set your repo URL
 PYTHON="python3"
 
 GREEN="\033[0;32m"
@@ -100,16 +100,16 @@ deploy_server() {
 
     # Install systemd service
     info "Installing systemd service..."
-    sed "s|/opt/bball-buffer-bot|$APP_DIR|g" "$APP_DIR/bball-bot.service" \
-        > /etc/systemd/system/bball-bot.service
+    sed "s|/opt/worldcup-buffer-bot|$APP_DIR|g" "$APP_DIR/worldcup-bot.service" \
+        > /etc/systemd/system/worldcup-bot.service
 
     systemctl daemon-reload
-    systemctl enable bball-bot
-    systemctl restart bball-bot
+    systemctl enable worldcup-bot
+    systemctl restart worldcup-bot
 
     sleep 2
-    systemctl status bball-bot --no-pager
-    info "Deployment complete! Bot is running as a system service."
+    systemctl status worldcup-bot --no-pager
+    info "Deployment complete! World Cup 2026 bot is running as a system service."
 }
 
 
@@ -125,7 +125,7 @@ cmd_update() {
         cd "$APP_DIR"
         git pull
         "$APP_DIR/venv/bin/pip" install --quiet -r requirements.txt
-        sudo systemctl restart bball-bot
+        sudo systemctl restart worldcup-bot
         info "Bot updated and restarted."
     fi
 }
@@ -135,9 +135,9 @@ cmd_update() {
 cmd_status() {
     if [ -f "docker-compose.yml" ] && command -v docker &>/dev/null; then
         docker compose ps
-    elif systemctl is-active --quiet bball-bot; then
+    elif systemctl is-active --quiet worldcup-bot; then
         echo ""
-        systemctl status bball-bot --no-pager
+        systemctl status worldcup-bot --no-pager
     else
         warn "Bot does not appear to be running."
     fi
@@ -149,7 +149,7 @@ cmd_logs() {
     if [ -f "docker-compose.yml" ] && command -v docker &>/dev/null; then
         docker compose logs -f bot
     else
-        journalctl -u bball-bot -f
+        journalctl -u worldcup-bot -f
     fi
 }
 
@@ -160,7 +160,7 @@ cmd_stop() {
         docker compose down
         info "Docker containers stopped."
     else
-        sudo systemctl stop bball-bot
+        sudo systemctl stop worldcup-bot
         info "Bot service stopped."
     fi
 }

@@ -36,17 +36,17 @@ systemctl start docker
 
 ```bash
 # From your local machine:
-scp -r bball-buffer-bot/ root@YOUR_SERVER_IP:/opt/bball-buffer-bot/
+scp -r worldcup-buffer-bot/ root@YOUR_SERVER_IP:/opt/worldcup-buffer-bot/
 
 # Or clone from GitHub (after pushing your code):
 ssh root@YOUR_SERVER_IP
-git clone https://github.com/YOUR_USERNAME/bball-buffer-bot.git /opt/bball-buffer-bot
+git clone https://github.com/YOUR_USERNAME/worldcup-buffer-bot.git /opt/worldcup-buffer-bot
 ```
 
 ### 4. Set up environment variables
 
 ```bash
-cd /opt/bball-buffer-bot
+cd /opt/worldcup-buffer-bot
 cp .env.example .env
 nano .env
 ```
@@ -56,7 +56,8 @@ Fill in:
 BUFFER_API_KEY=your_actual_buffer_api_key
 BUFFER_CHANNEL_ID=your_actual_channel_id
 AI_PROVIDER=groq
-AI_MODEL=mistral
+AI_MODEL=llama-3.3-70b-versatile
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ### 5. Deploy
@@ -69,8 +70,7 @@ chmod +x deploy.sh
 This will:
 - Build the bot container
 - Use Groq as the AI provider
-- Pull the Mistral AI model
-- Start the bot
+- Start the World Cup 2026 bot
 - Auto-restart on crash
 
 ### 6. Verify it's running
@@ -89,9 +89,9 @@ Best for: if you prefer direct server setup without Docker.
 ### 1. SSH into your server and upload files
 
 ```bash
-scp -r bball-buffer-bot/ root@YOUR_SERVER_IP:/opt/bball-buffer-bot/
+scp -r worldcup-buffer-bot/ root@YOUR_SERVER_IP:/opt/worldcup-buffer-bot/
 ssh root@YOUR_SERVER_IP
-cd /opt/bball-buffer-bot
+cd /opt/worldcup-buffer-bot
 cp .env.example .env
 nano .env   # fill in your keys
 ```
@@ -109,10 +109,10 @@ sets up a virtualenv, and installs a systemd service that auto-starts on boot.
 ### 3. Common commands
 
 ```bash
-sudo systemctl status bball-bot       # check status
-sudo systemctl restart bball-bot      # restart
-sudo systemctl stop bball-bot         # stop
-journalctl -u bball-bot -f            # live logs
+sudo systemctl status worldcup-bot       # check status
+sudo systemctl restart worldcup-bot      # restart
+sudo systemctl stop worldcup-bot         # stop
+journalctl -u worldcup-bot -f            # live logs
 ```
 
 ---
@@ -144,7 +144,7 @@ crontab -e
 ```
 Add this line:
 ```
-*/5 * * * * cd /opt/bball-buffer-bot && python healthcheck.py --json >> logs/health.log 2>&1
+*/5 * * * * cd /opt/worldcup-buffer-bot && python healthcheck.py --json >> logs/health.log 2>&1
 ```
 
 ---
@@ -156,7 +156,7 @@ Add this line:
 | `BUFFER_API_KEY` | ✅ Yes | Your Buffer API key |
 | `BUFFER_CHANNEL_ID` | ✅ Yes | Your X/Twitter channel ID in Buffer |
 | `AI_PROVIDER` | No | `groq` (default) |
-| `AI_MODEL` | No | `llama3-70b-8192` (default) |
+| `AI_MODEL` | No | `llama-3.3-70b-versatile` (default) |
 | `GROQ_API_KEY` | ✅ Yes | Free key from console.groq.com |
 | `LOG_LEVEL` | No | `INFO` (default), `DEBUG`, `WARNING` |
 

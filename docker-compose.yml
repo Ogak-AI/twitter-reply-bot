@@ -3,7 +3,7 @@ version: "3.9"
 services:
   bot:
     build: .
-    container_name: bball-news-bot
+    container_name: worldcup-news-bot
     restart: unless-stopped
     env_file: .env
     volumes:

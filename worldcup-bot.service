@@ -1,5 +1,5 @@
 [Unit]
-Description=Basketball News Buffer Bot
+Description=World Cup 2026 News Buffer Bot
 After=network.target
 Wants=network-online.target
 
@@ -7,14 +7,14 @@ Wants=network-online.target
 Type=simple
 User=botuser
 Group=botuser
-WorkingDirectory=/opt/bball-buffer-bot
-EnvironmentFile=/opt/bball-buffer-bot/.env
-ExecStart=/opt/bball-buffer-bot/venv/bin/python main.py
+WorkingDirectory=/opt/worldcup-buffer-bot
+EnvironmentFile=/opt/worldcup-buffer-bot/.env
+ExecStart=/opt/worldcup-buffer-bot/venv/bin/python main.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=bball-bot
+SyslogIdentifier=worldcup-bot
 
 # Auto-restart on failure, but not more than 5 times in 60 seconds
 StartLimitIntervalSec=60

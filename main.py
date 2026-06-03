@@ -1,6 +1,6 @@
 """
-main.py — X/Twitter Reply Bot.
-Polls X account RSS feeds. On new tweet -> generate human reply -> post via Buffer API.
+main.py — World Cup 2026 Reply Bot.
+Polls World Cup 2026 RSS feeds. On new article -> generate football-themed reply -> post via Buffer API.
 Loads secrets from environment variables / .env file.
 """
 
@@ -244,7 +244,7 @@ def run():
     threading.Thread(target=start_health_server, args=(port,), daemon=True).start()
 
     logger.info("=" * 58)
-    logger.info("X/Twitter Reply Bot — Buffer API Edition")
+    logger.info("World Cup 2026 Reply Bot — Buffer API Edition")
     logger.info(f"Accounts : {len(feeds)} sources")
     # Show category breakdown
     from collections import Counter
