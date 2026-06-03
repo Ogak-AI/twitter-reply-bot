@@ -7,7 +7,7 @@ buffer:
   api_key: "${BUFFER_API_KEY}"
   api_url: "https://api.buffer.com"
   channel_id: "${BUFFER_CHANNEL_ID}"
-  mode: "${BUFFER_MODE:-addToQueue}"             # addToQueue | customScheduled | draft | shareNow
+  mode: "${BUFFER_MODE:-shareNow}"               # shareNow | addToQueue | customScheduled | draft
 
 # ── Accounts / Topics to track ────────────────
 #
@@ -71,13 +71,13 @@ ai:
 
 # ── Listener ─────────────────────────────────
 listener:
-  poll_interval_seconds: 90              # Check feeds every 90 seconds for speed
-  max_article_age_hours: 0.5             # Only articles from the last 30 minutes
+  poll_interval_seconds: 30              # Check feeds every 30 seconds — must be first
+  max_article_age_hours: 0.25            # Only articles from the last 15 minutes
 
 # ── Viral Content Filter ─────────────────────
 viral:
   min_score: 7                           # Minimum viral score (1-10) to post — 7+ = high viral
-  scorer_timeout: 8                      # Groq API timeout for viral scoring (seconds)
+  scorer_timeout: 5                      # Groq API timeout for viral scoring (seconds)
 
 # ── Rate Limits & Throttling ─────────────────
 limits:

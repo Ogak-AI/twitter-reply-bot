@@ -1,6 +1,7 @@
 """
 viral_scorer.py — AI-powered viral potential scorer for World Cup 2026 headlines.
 Uses a fast Groq API call to rate headlines 1–10. Only high-scoring content gets posted.
+Includes a keyword fast-track to bypass AI scoring for obviously explosive headlines.
 """
 
 import logging
@@ -37,8 +38,33 @@ _USER_PROMPT_TEMPLATE = (
     "Reply with ONLY a single integer."
 )
 
+# ── Keyword Fast-Track ──────────────────────────────────
+# Headlines matching these patterns are auto-scored 10/10 without an API call.
+# Saves ~1-2s on the most time-critical breaking news.
+_FAST_TRACK_PATTERNS = re.compile(
+    r"(?i)(?:"
+    # Breaking news markers
+    r"BREAKING|JUST\s*IN|OFFICIAL|CONFIRMED|EXCLUSIVE"
+    r"|signs?\s+for|transfer\s+confirmed|deal\s+done|official\s+signing"
+    # Injury / ban drama
+    r"|ruled\s+out|torn\s+ACL|injury\s+blow|out\s+of\s+(?:the\s+)?World\s+Cup"
+    r"|banned|suspended|doping|scandal"
+    # Match drama
+    r"|eliminated|knocked\s+out|stunned|upset|last[- ]minute|penalty\s+shootout|red\s+card"
+    # Star players (first or last name is enough)
+    r"|Messi|Mbapp[eé]|Ronaldo|Haaland|Vinicius|Bellingham|Neymar|Salah|De\s+Bruyne"
+    r")"
+)
 
-def score_viral_potential(headline: str, ai_config: dict, timeout: int = 8) -> int:
+
+def _check_fast_track(headline: str) -> int | None:
+    """Returns 10 if headline matches fast-track keywords, else None."""
+    if _FAST_TRACK_PATTERNS.search(headline):
+        return 10
+    return None
+
+
+def score_viral_potential(headline: str, ai_config: dict, timeout: int = 5) -> int:
     """
     Scores a headline for viral potential on Twitter/X using Groq API.
 
@@ -50,14 +76,20 @@ def score_viral_potential(headline: str, ai_config: dict, timeout: int = 8) -> i
     Returns:
         Integer score 1–10. Returns _FALLBACK_SCORE on any failure.
     """
+    if not headline or not headline.strip():
+        return _FALLBACK_SCORE
+
+    # Fast-track: skip API call for obviously explosive headlines
+    fast_score = _check_fast_track(headline)
+    if fast_score is not None:
+        logger.info(f"[FAST-TRACK {fast_score}/10] {headline[:60]}")
+        return fast_score
+
     api_key = ai_config.get("groq_api_key")
     model = ai_config.get("model", "llama-3.3-70b-versatile")
 
     if not api_key:
         logger.warning("[VIRAL] Groq API key missing — returning fallback score")
-        return _FALLBACK_SCORE
-
-    if not headline or not headline.strip():
         return _FALLBACK_SCORE
 
     headers = {
@@ -98,3 +130,4 @@ def score_viral_potential(headline: str, ai_config: dict, timeout: int = 8) -> i
     except Exception as e:
         logger.error(f"[VIRAL] Scoring API call failed: {e}")
         return _FALLBACK_SCORE
+

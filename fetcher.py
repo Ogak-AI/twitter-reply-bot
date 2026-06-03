@@ -58,7 +58,7 @@ def resolve_google_news_url(url: str) -> str:
     # Strategy 2: Follow HTTP redirects
     try:
         headers = {"User-Agent": USER_AGENT}
-        resp = requests.get(url, headers=headers, timeout=8, allow_redirects=True)
+        resp = requests.get(url, headers=headers, timeout=5, allow_redirects=True)
         final = resp.url
         if "news.google.com" not in final and "google.com/rss" not in final:
             logger.debug(f"[RESOLVE] Redirected Google News URL → {final[:80]}")
@@ -91,7 +91,7 @@ def extract_article_image(url: str) -> str | None:
     try:
         headers = {"User-Agent": USER_AGENT}
         # Only fetch the page if we haven't already (i.e. URL was decoded, not HTTP-fetched)
-        resp = requests.get(resolved_url, headers=headers, timeout=8, allow_redirects=True)
+        resp = requests.get(resolved_url, headers=headers, timeout=5, allow_redirects=True)
         if resp.status_code >= 400:
             logger.debug(f"[IMAGE] HTTP {resp.status_code} fetching {resolved_url[:60]}")
             return None
@@ -146,7 +146,7 @@ def fetch_single_feed(feed_info, cutoff_time, now):
     try:
         # Fetch feed content using requests with a real User-Agent
         headers = {"User-Agent": USER_AGENT}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=6)
 
         if response.status_code >= 400:
             logger.warning(f"[@{username}] Feed returned HTTP {response.status_code}. Skipping.")
@@ -180,16 +180,15 @@ def fetch_single_feed(feed_info, cutoff_time, now):
             if published_dt < cutoff_time:
                 continue
 
-            # Extract the article's primary image from the source page
-            image_url = extract_article_image(link)
-
+            # Image extraction is deferred to process_article() — only
+            # fetched for articles that pass viral scoring (saves seconds
+            # per article during the feed-scan hot path).
             articles.append({
                 "url": link,
                 "title": title,
                 "source": username,
                 "category": category,
                 "published_at": published_dt.isoformat(),
-                "image_url": image_url,
             })
 
     except Exception as e:

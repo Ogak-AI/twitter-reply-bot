@@ -176,24 +176,17 @@ def process_article(article: dict, config: dict):
     from buffer_client import post_to_buffer
     from database import mark_seen, save_post, update_post
     from viral_scorer import score_viral_potential
+    from fetcher import extract_article_image
+    from concurrent.futures import ThreadPoolExecutor
 
     logger.info("")
     category = article.get('category', 'general')
     logger.info(f"[NEW] [{article['source']}] [{category}] {article['title'][:75]}")
 
-    # ── Require an article image — skip posting if none found ──
-    image_url = article.get("image_url")
-    if not image_url:
-        logger.warning(f"[SKIP] No image found for article — skipping post: {article['title'][:60]}")
-        mark_seen(article["url"], article["title"], article["source"])
-        return
-
-    logger.info(f"[IMAGE] Using image: {image_url[:80]}")
-
-    # ── Viral scoring — only post high-viral content ──
+    # ── Viral scoring FIRST — cheap & fast, filters before any heavy I/O ──
     viral_config = config.get("viral", {})
     min_score = viral_config.get("min_score", 7)
-    scorer_timeout = viral_config.get("scorer_timeout", 8)
+    scorer_timeout = viral_config.get("scorer_timeout", 5)
 
     viral_score = score_viral_potential(article.get("title", ""), config["ai"], timeout=scorer_timeout)
 
@@ -204,29 +197,45 @@ def process_article(article: dict, config: dict):
 
     logger.info(f"[VIRAL {viral_score}/10] Passed! — {article['title'][:60]}")
 
-    # Check throttling BEFORE generating the tweet or posting
+    # Check throttling BEFORE spending time on image/tweet
     throttled, reason = should_throttle_post(config)
     if throttled:
         logger.warning(f"[THROTTLE] Skipping Buffer post: {reason}")
         mark_seen(article["url"], article["title"], article["source"])
         return
 
-    api_key    = config["buffer"]["api_key"]
-    api_url    = config["buffer"].get("api_url", "https://api.buffer.com")
-    channel_id = resolve_channel_id(config["buffer"]["channel_id"])
-    mode       = config["buffer"].get("mode", "addToQueue")
+    # ── Parallel: fetch image + generate tweet simultaneously ──
+    # Both are independent I/O-bound tasks (~3-8s each). Running them
+    # in parallel saves ~3-5s per article.
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        image_future = executor.submit(extract_article_image, article["url"])
+        tweet_future = executor.submit(generate_tweet, article, config["ai"])
+
+        image_url = image_future.result()
+        raw_tweet = tweet_future.result()
+
+    # ── Image is mandatory — skip if extraction failed ──
+    if not image_url:
+        logger.warning(f"[SKIP] No image found for article — skipping post: {article['title'][:60]}")
+        mark_seen(article["url"], article["title"], article["source"])
+        return
+
+    logger.info(f"[IMAGE] Using image: {image_url[:80]}")
 
     try:
-        post_text = generate_tweet(article, config["ai"])
-        post_text = strip_emojis(post_text).strip()
+        post_text = strip_emojis(raw_tweet).strip()
         # Tweet is text-only (no link) — the attached image provides visual context
-        tweet = strip_emojis(post_text)
-        tweet = re.sub(r"\s+", " ", tweet).strip()
+        tweet = re.sub(r"\s+", " ", post_text).strip()
     except Exception as e:
         logger.error(f"Tweet generation failed: {e}")
         return
 
     logger.info(f"[POST] ({len(tweet)} chars): {tweet}")
+
+    api_key    = config["buffer"]["api_key"]
+    api_url    = config["buffer"].get("api_url", "https://api.buffer.com")
+    channel_id = resolve_channel_id(config["buffer"]["channel_id"])
+    mode       = config["buffer"].get("mode", "shareNow")
 
     post_id = save_post(article["url"], tweet)
     mark_seen(article["url"], article["title"], article["source"])
@@ -305,13 +314,10 @@ def run():
         from viral_scorer import score_viral_potential
         viral_config = config.get("viral", {})
         min_score = viral_config.get("min_score", 7)
-        scorer_timeout = viral_config.get("scorer_timeout", 8)
+        scorer_timeout = viral_config.get("scorer_timeout", 5)
         
         best_article = None
         for art in unseen_articles:
-            # Skip articles without images
-            if not art.get("image_url"):
-                continue
             score = score_viral_potential(art.get("title", ""), config["ai"], timeout=scorer_timeout)
             if score >= min_score:
                 best_article = art

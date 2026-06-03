@@ -108,7 +108,7 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
             "https://api.groq.com/openai/v1/chat/completions",
             headers=headers,
             json=data,
-            timeout=15,
+            timeout=10,
         )
         response.raise_for_status()
         post_content = response.json()["choices"][0]["message"]["content"].strip()
