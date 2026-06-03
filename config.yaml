@@ -11,161 +11,56 @@ buffer:
 
 # ── Accounts / Topics to track ────────────────
 #
+# TOPIC: Strictly FIFA World Cup 2026 only.
+# All feeds must relate to WC2026 news, teams, venues, matches, and players.
+#
 # STRATEGY: Since Twitter (X) blocks standard scraping (403/404 on public RSSHub/Nitter),
 # we use a highly reliable, free, and robust dual-source approach:
 #
-#   1. NATIVE RSS: Official RSS feeds from news/sports sites (ESPN, Hoops Rumors, BBC, etc.)
+#   1. NATIVE RSS: Official RSS feeds from news/sports sites (ESPN, BBC, etc.)
 #      Fetched using a custom User-Agent to prevent WAF blocks.
 #
-#   2. GOOGLE NEWS RSS: We track key individuals (Elon Musk, Sam Altman, Shams, Fabrizio)
-#      by scraping real-time Google News search feeds. This is free, fast, and 100% stable.
+#   2. GOOGLE NEWS RSS: We track World Cup 2026 keywords and sources
+#      by scraping real-time Google News search feeds. Free, fast, and 100% stable.
 #
 # ──────────────────────────────────────────────
 
 x_accounts:
 
   # ═══════════════════════════════════════════
-  # SPORTS — NBA / Basketball
+  # FIFA World Cup 2026 — All Sources
   # ═══════════════════════════════════════════
-  - username: "ESPN_NBA"
-    category: "sports"
-    rss_url: "https://www.espn.com/espn/rss/nba/news"
+  - username: "FIFA_WorldCup"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+OR+%22FIFA+World+Cup+2026%22&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "HoopsRumors"
-    category: "sports"
-    rss_url: "https://www.hoopsrumors.com/feed"
+  - username: "WorldCup_ESPN"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+site:espn.com&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "HoopsHype"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22HoopsHype%22&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_Sky"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+site:skysports.com&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "SLAM_Online"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22SLAM+Magazine%22+OR+%22SLAM+online%22&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_Athletic"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+site:theathletic.com&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "ShamsCharania"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22Shams+Charania%22&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_BBC"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+(site:bbc.co.uk+OR+site:bbc.com)&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "wojespn"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22Adrian+Wojnarowski%22&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_Venues"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+(stadium+OR+venue+OR+schedule)&hl=en-US&gl=US&ceid=US:en"
 
-  # ═══════════════════════════════════════════
-  # SPORTS — Football (Soccer) & NFL
-  # ═══════════════════════════════════════════
-  - username: "FabrizioRomano"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22Fabrizio+Romano%22&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_Squads"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+(squad+OR+roster+OR+call-up+OR+transfer)&hl=en-US&gl=US&ceid=US:en"
 
-  - username: "ESPN_FC"
-    category: "sports"
-    rss_url: "https://www.espn.com/espn/rss/soccer/news"
-
-  - username: "BBCSport"
-    category: "sports"
-    rss_url: "http://feeds.bbci.co.uk/sport/rss.xml"
-
-  - username: "AdamSchefter"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22Adam+Schefter%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "RapSheet"
-    category: "sports"
-    rss_url: "https://news.google.com/rss/search?q=%22Ian+Rapoport%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "ESPN_NFL"
-    category: "sports"
-    rss_url: "https://www.espn.com/espn/rss/nfl/news"
-
-  # ═══════════════════════════════════════════
-  # TECH & AI
-  # ═══════════════════════════════════════════
-  - username: "elonmusk"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22Elon+Musk%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "sama"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22Sam+Altman%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "TechCrunch"
-    category: "tech"
-    rss_url: "https://techcrunch.com/feed/"
-
-  - username: "TheVerge"
-    category: "tech"
-    rss_url: "https://www.theverge.com/rss/index.xml"
-
-  - username: "ArsTechnica"
-    category: "tech"
-    rss_url: "https://feeds.arstechnica.com/arstechnica/index/"
-
-  - username: "WIRED"
-    category: "tech"
-    rss_url: "https://www.wired.com/feed/rss"
-
-  - username: "engadget"
-    category: "tech"
-    rss_url: "https://www.engadget.com/rss.xml"
-
-  - username: "OpenAI"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22OpenAI%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "Google"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22Google%22+OR+%22Alphabet+Inc%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "MKBHD"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22Marques+Brownlee%22+OR+%22MKBHD%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "MrBeast"
-    category: "tech"
-    rss_url: "https://news.google.com/rss/search?q=%22MrBeast%22+OR+%22Jimmy+Donaldson%22&hl=en-US&gl=US&ceid=US:en"
-
-  # ═══════════════════════════════════════════
-  # FINANCE
-  # ═══════════════════════════════════════════
-  - username: "Bloomberg"
-    category: "finance"
-    rss_url: "https://news.google.com/rss/search?q=%22Bloomberg+News%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "CNBC"
-    category: "finance"
-    rss_url: "https://news.google.com/rss/search?q=%22CNBC%22&hl=en-US&gl=US&ceid=US:en"
-
-  # ═══════════════════════════════════════════
-  # ENTERTAINMENT & POP CULTURE
-  # ═══════════════════════════════════════════
-  - username: "PopCrave"
-    category: "entertainment"
-    rss_url: "https://news.google.com/rss/search?q=%22Pop+Crave%22+OR+%22PopCrave%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "DiscussingFilm"
-    category: "entertainment"
-    rss_url: "https://news.google.com/rss/search?q=%22DiscussingFilm%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "IGN"
-    category: "entertainment"
-    rss_url: "https://feeds.feedburner.com/ign/all"
-
-  - username: "GameSpot"
-    category: "entertainment"
-    rss_url: "https://www.gamespot.com/feeds/mashup/"
-
-  - username: "Variety"
-    category: "entertainment"
-    rss_url: "https://news.google.com/rss/search?q=%22Variety%22+magazine&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "THR"
-    category: "entertainment"
-    rss_url: "https://news.google.com/rss/search?q=%22Hollywood+Reporter%22&hl=en-US&gl=US&ceid=US:en"
-
-  - username: "Drake"
-    category: "entertainment"
-    rss_url: "https://news.google.com/rss/search?q=rapper+%22Drake%22+news&hl=en-US&gl=US&ceid=US:en"
+  - username: "WorldCup_Matches"
+    category: "worldcup"
+    rss_url: "https://news.google.com/rss/search?q=%22World+Cup+2026%22+(match+OR+fixture+OR+result+OR+qualifying)&hl=en-US&gl=US&ceid=US:en"
 
 # ── AI (tweet generation) ────────────────────
 ai:

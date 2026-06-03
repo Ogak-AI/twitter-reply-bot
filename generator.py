@@ -30,18 +30,13 @@ def strip_emojis(text: str) -> str:
     return text
 
 
-# Category-specific tone hints to make replies feel more natural
+# Category-specific tone hints — strictly World Cup 2026 focused
 _CATEGORY_HINTS = {
-    "sports": "You are a passionate sports fan who watches games live. Use sports slang naturally (e.g., 'dude is cooking', 'W trade', 'league is cooked').",
-    "tech": "You are a tech-savvy person who follows the industry closely. Keep it casual but informed.",
-    "news": "You are a normal person reacting to news. Be genuine and natural, not preachy.",
-    "crypto": "You are someone who follows crypto markets casually. Use crypto-native language sparingly (e.g., 'bullish', 'lfg', 'ngmi').",
-    "finance": "You are a regular person interested in money and markets. Keep it grounded.",
-    "entertainment": "You are a pop culture fan. Be excited or snarky as fits the mood.",
-    "science": "You are someone who genuinely finds science fascinating. Be curious and excited.",
-    "viral": "You are reacting to something funny or wild you saw online. Be casual and witty.",
-    "general": "You are a normal person on Twitter reacting to something interesting.",
+    "worldcup": "You are an excited football/soccer fan who is hyped for the FIFA World Cup 2026 in North America (USA, Canada, Mexico). Use football terms and slang naturally (e.g., 'absolute cinema', 'pitch', 'group of death', 'baller', 'it's coming home', 'W tournament', 'the beautiful game'). Reference World Cup 2026 venues, teams, groups, and matchups when relevant.",
 }
+
+# Default hint for any article — always stays on World Cup 2026 topic
+_DEFAULT_HINT = _CATEGORY_HINTS["worldcup"]
 
 # Dynamic angles to vary the writing style across replies
 _REPLY_ANGLES = [
@@ -76,7 +71,7 @@ def generate_tweet(article: dict, ai_config: dict) -> str:
     }
 
     # Get category-specific personality and random reply angle
-    category_hint = _CATEGORY_HINTS.get(category, _CATEGORY_HINTS["general"])
+    category_hint = _CATEGORY_HINTS.get(category, _DEFAULT_HINT)
     angle = random.choice(_REPLY_ANGLES)
 
     # Generate an organic, casual, human-like reply under 180 characters.
