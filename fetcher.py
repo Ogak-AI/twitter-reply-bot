@@ -88,6 +88,11 @@ def extract_article_image(url: str) -> str | None:
     # Resolve Google News redirect to actual article URL
     resolved_url = resolve_google_news_url(url)
 
+    # Reject if resolution failed — we're still on Google News
+    if "news.google.com" in resolved_url or "google.com/rss" in resolved_url:
+        logger.debug(f"[IMAGE] Failed to resolve away from Google News. Rejecting: {resolved_url[:60]}")
+        return None
+
     try:
         headers = {"User-Agent": USER_AGENT}
         # Only fetch the page if we haven't already (i.e. URL was decoded, not HTTP-fetched)
